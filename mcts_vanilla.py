@@ -18,6 +18,34 @@ def traverse_nodes(node, board, state, identity):
     Returns:        A node from which the next stage of the search can proceed.
 
     """
+    highest_child = node
+    opponent = None
+
+    while(len(highest_child.child_nodes) != 0):
+        urgent_child = highest_child.child_nodes[0]
+
+        
+        if(board.current_player(state) == identity):
+            opponent = 0
+        else:
+            opponent = 1
+
+        upp_bound = (abs(opponent*urgent_child.visits - urgent_child.wins)/urgent_child.visit) + \
+            explore_faction*sqrt((2*log * urgent_child.parent.visits) / urgent_child.visits)
+
+        for child in highest_child.child_nodes:
+
+            child_bound = (abs(opponent*child.visits - child.wins)/child.visits) + \
+                explore_faction*sqrt((2*log * child.parent.visits) / child.visits)
+            if(upp_bound < child_bound):
+                
+                urgent_child = child
+                upp_bound = child_bound
+        
+        highest_child = urgent_child
+
+    return highest_child
+
 
     pass
     # Hint: return leaf_node
@@ -34,6 +62,9 @@ def expand_leaf(node, board, state):
     Returns:    The added child node.
 
     """
+    
+
+
     pass
     # Hint: return new_node
 
