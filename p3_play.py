@@ -33,11 +33,11 @@ if len(sys.argv) != 3:
 
 p1 = sys.argv[1]
 if p1 not in players:
-    print("p1 not in "+players.keys().join(","))
+    print("p1 not in " + ",".join(players.keys()))
     exit(1)
 p2 = sys.argv[2]
 if p2 not in players:
-    print("p2 not in "+players.keys().join(","))
+    print("p2 not in " + ",".join(players.keys()))
     exit(1)
 
 player1 = players[p1]
