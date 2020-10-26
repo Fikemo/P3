@@ -12,7 +12,6 @@ def get_urgent_child(node, opponent):
         # adversarial planning - if the bot is the opponent, the win rate is (1 - bot's win rate) = (1 - node.wins / node.visits)
 
         xj = node_child.wins / node_child.visits if not opponent else 1 - (node_child.wins / node_child.visits)
-
         return xj + (explore_faction * sqrt((2 * log(node.visits) / node_child.visits)))
 
     urgent_child = None

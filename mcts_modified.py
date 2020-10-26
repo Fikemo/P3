@@ -86,6 +86,7 @@ def expand_leaf(node, board, state):
 
 def rollout_helper(board, state):
     rollouts = 5
+
     max_depth = 5
 
     moves = board.legal_actions(state)
