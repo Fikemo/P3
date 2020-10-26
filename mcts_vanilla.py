@@ -2,7 +2,7 @@ from mcts_node import MCTSNode
 from random import choice
 from math import sqrt, log
 
-num_nodes = 1000
+num_nodes = 100
 explore_faction = 2.
 
 
@@ -15,11 +15,12 @@ def get_urgent_child(node, opponent):
 
         return xj + (explore_faction * sqrt((2 * log(node.visits) / node_child.visits)))
 
-    prev_bound = 0
-    urgent_child = choice(list(node.child_nodes.values()))
+    urgent_child = None
+    prev_bound = float('-inf')
 
     for child in node.child_nodes.values():
         current_bound = get_UCT(node, child, opponent)
+
         if current_bound > prev_bound:
             prev_bound = current_bound
             urgent_child = child
@@ -28,18 +29,29 @@ def get_urgent_child(node, opponent):
 
 
 def traverse_nodes(node, board, state, identity):
+    """ Traverses the tree until the end criterion are met.
 
+    Args:
+        node:       A tree node from which the search is traversing.
+        board:      The game setup.
+        state:      The state of the game.
+        identity:   The bot's identity, either 'red' or 'blue'.
+
+    Returns:        A node from which the next stage of the search can proceed. And the updated state
+
+    """
     if node.untried_actions:  # still more actions to try
         return node, state
-    if not node.child_nodes:  # no children
+    elif not node.child_nodes:  # no children
         return node, state
     else:
         player = board.current_player(state)  # get current player
         urgent_child = get_urgent_child(node, False if player == identity else True)  # get the urgent child which is the next node to go to in the tree
         state = board.next_state(state, urgent_child.parent_action)  # update the board with the move that the node takes
+        
         return traverse_nodes(urgent_child, board, state, identity)  # recursively call the function until we get to a end criterion is met
 
-    #Hint: return leaf_node
+    # Hint: return leaf_node
 
 
 def expand_leaf(node, board, state):
@@ -50,31 +62,24 @@ def expand_leaf(node, board, state):
         board:  The game setup.
         state:  The state of the game.
 
-    Returns:    The added child node.
+    Returns:    The added child node. And the Updated state
 
     """
-    if not node.untried_actions:
-        if not node.child_nodes:
+    if not node.untried_actions:  # empty list of untried actions
+        if not node.child_nodes:  # no children
             return node, state
-        else:
-            print("error: node was traversed to without untried actions, but with child nodes")
+        else:  # should be terminal node. Can't have children
+            print("error: node without untried actions and children is not expandable")
 
+    next_move = choice(node.untried_actions)  # makes a random choice
+    state = board.next_state(state, next_move)  # updates state with new action
+    available_actions = board.legal_actions(state)  # get the next set of available actions
+    new_child = MCTSNode(parent=node, parent_action=next_move, action_list=available_actions)
 
-    exp_move = choice(node.untried_actions)  # makes a random choice
-    # declares a new node with that random node, and a new state
-    state = board.next_state(state, exp_move)
-    new_child = MCTSNode(parent=node, parent_action=exp_move, \
-                         action_list=board.legal_actions(board.next_state(state, exp_move)))
+    node.untried_actions.remove(next_move)  # removes the random choice from tried choices
+    node.child_nodes[next_move] = new_child  # and declares at that index in child_nodes as the new node
 
-    # removes the random choice from tried choices
-    # and declares at that index in child_nodes as the new node
-
-    node.untried_actions.remove(exp_move)
-    node.child_nodes[exp_move] = new_child
-
-    #
-
-    return new_child, board.next_state(state, exp_move)
+    return new_child, state
 
     # Hint: return new_node
 
@@ -86,13 +91,15 @@ def rollout(board, state):
         board:  The game setup.
         state:  The state of the game.
 
+    Returns: The updated state
+
     """
 
     while not board.is_ended(state):
-        rdm_choice = choice(board.legal_actions(state))  # makes a random choice while the board isnt in end condition
-        state = board.next_state(state, rdm_choice)  # keeps reanitializing if it won or lost
+        rdm_choice = choice(board.legal_actions(state))  # make a random legal choice
+        state = board.next_state(state, rdm_choice)  # update state
 
-    return state  # win or lost returned after board has ended (no more moves)
+    return state  # state should be at the end of the game. Either win or loss
 
 
 def backpropagate(node, won):
@@ -103,21 +110,11 @@ def backpropagate(node, won):
         won:    An indicator of whether the bot won or lost the game.
 
     """
-    '''if won == 0:
-        while node != None:
-            node.visits = node.visits + 1
-            node = node.parent
-        return
 
-    while node != None:
-        node.visits = node.visits + 1
-        node.wins = node.wins + 1
-        node = node.parent'''
-
-    if node:
+    if node:  # if node == None then we've reached the root node's parent
         node.visits += 1
-        node.wins += won
-        backpropagate(node.parent, won)
+        node.wins += won  # won = 1, 0, or -1. These values correspond to a win, draw, or a loss
+        backpropagate(node.parent, won)  # recursively call to go up the tree to the root
 
     return
 
@@ -148,14 +145,10 @@ def think(board, state):
         new_child, sampled_game = expand_leaf(curr_node, board, sampled_game)
         sampled_game = rollout(board, sampled_game)
 
-        '''if board.points_values(sampled_game) == 1:
-            won = 1
-        else:
-            won = 0'''
-
         won = board.points_values(sampled_game)[identity_of_bot]
 
         backpropagate(new_child, won)
+
     # Return an action, typically the most frequently used action (from the root) or the action with the best
     # estimated win rate.
 
@@ -168,5 +161,5 @@ def think(board, state):
             best_winrate = winrate
             rdm_node = child
 
+    print("mcts_vanilla picking %s" % (str(rdm_node.parent_action)))
     return rdm_node.parent_action
-
