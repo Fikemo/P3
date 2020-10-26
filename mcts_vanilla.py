@@ -12,6 +12,7 @@ def get_urgent_child(node, opponent):
         # adversarial planning - if the bot is the opponent, the win rate is (1 - bot's win rate) = (1 - node.wins / node.visits)
 
         xj = node_child.wins / node_child.visits if not opponent else 1 - (node_child.wins / node_child.visits)
+
         return xj + (explore_faction * sqrt((2 * log(node.visits) / node_child.visits)))
 
     prev_bound = 0
@@ -22,7 +23,6 @@ def get_urgent_child(node, opponent):
         if current_bound > prev_bound:
             prev_bound = current_bound
             urgent_child = child
-
 
     return urgent_child
 
@@ -88,8 +88,7 @@ def rollout(board, state):
 
     """
 
-
-    while (not board.is_ended(state)):
+    while not board.is_ended(state):
         rdm_choice = choice(board.legal_actions(state))  # makes a random choice while the board isnt in end condition
         state = board.next_state(state, rdm_choice)  # keeps reanitializing if it won or lost
 
@@ -104,16 +103,21 @@ def backpropagate(node, won):
         won:    An indicator of whether the bot won or lost the game.
 
     """
-    if (won == 0):
-        while (node != None):
+    '''if won == 0:
+        while node != None:
             node.visits = node.visits + 1
             node = node.parent
         return
 
-    while (node != None):
+    while node != None:
         node.visits = node.visits + 1
         node.wins = node.wins + 1
-        node = node.parent
+        node = node.parent'''
+
+    if node:
+        node.visits += 1
+        node.wins += won
+        backpropagate(node.parent, won)
 
     return
 
@@ -144,10 +148,12 @@ def think(board, state):
         new_child, sampled_game = expand_leaf(curr_node, board, sampled_game)
         sampled_game = rollout(board, sampled_game)
 
-        if (board.points_values(sampled_game)== 1):
+        '''if board.points_values(sampled_game) == 1:
             won = 1
         else:
-            won = 0
+            won = 0'''
+
+        won = board.points_values(sampled_game)[identity_of_bot]
 
         backpropagate(new_child, won)
     # Return an action, typically the most frequently used action (from the root) or the action with the best
@@ -156,11 +162,11 @@ def think(board, state):
     best_winrate = 0
     rdm_node = choice(list(root_node.child_nodes.values()))
 
-    for children in root_node.child_nodes.values():
-        winrate = children.wins / children.visits
+    for child in root_node.child_nodes.values():
+        winrate = child.wins / child.visits
         if winrate > best_winrate:
             best_winrate = winrate
-            rdm_node = children
+            rdm_node = child
 
     return rdm_node.parent_action
 
