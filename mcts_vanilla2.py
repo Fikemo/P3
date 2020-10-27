@@ -2,7 +2,7 @@ from mcts_node import MCTSNode
 from random import choice
 from math import sqrt, log
 
-num_nodes = 500
+num_nodes = 50
 explore_faction = 2.
 
 
@@ -12,7 +12,6 @@ def get_urgent_child(node, opponent):
         # adversarial planning - if the bot is the opponent, the win rate is (1 - bot's win rate) = (1 - node.wins / node.visits)
 
         xj = node_child.wins / node_child.visits if not opponent else 1 - (node_child.wins / node_child.visits)
-
         return xj + (explore_faction * sqrt((2 * log(node.visits) / node_child.visits)))
 
     urgent_child = None
@@ -48,7 +47,7 @@ def traverse_nodes(node, board, state, identity):
         player = board.current_player(state)  # get current player
         urgent_child = get_urgent_child(node, False if player == identity else True)  # get the urgent child which is the next node to go to in the tree
         state = board.next_state(state, urgent_child.parent_action)  # update the board with the move that the node takes
-
+        
         return traverse_nodes(urgent_child, board, state, identity)  # recursively call the function until we get to a end criterion is met
 
     # Hint: return leaf_node
@@ -84,55 +83,6 @@ def expand_leaf(node, board, state):
     # Hint: return new_node
 
 
-def rollout_helper(board, state):
-    rollouts = 3
-
-    max_depth = 2
-
-    moves = board.legal_actions(state)
-
-    best_move = moves[0]
-    best_expectation = float('-inf')
-
-    me = board.current_player(state)
-
-    # Define a helper function to calculate the difference between the bot's score and the opponent's.
-    def outcome(owned_boxes, game_points):
-        if game_points is not None:
-            # Try to normalize it up?  Not so sure about this code anyhow.
-            red_score = game_points[1] * 9
-            blue_score = game_points[2] * 9
-        else:
-            red_score = len([v for v in owned_boxes.values() if v == 1])
-            blue_score = len([v for v in owned_boxes.values() if v == 2])
-        return red_score - blue_score if me == 1 else blue_score - red_score
-
-    for move in moves:
-        total_score = 0.0
-
-        # Sample a set number of games where the target move is immediately applied.
-        for r in range(rollouts):
-            rollout_state = board.next_state(state, move)
-
-            # Only play to the specified depth.
-            for i in range(max_depth):
-                if board.is_ended(rollout_state):
-                    break
-                rollout_move = choice(board.legal_actions(rollout_state))
-                rollout_state = board.next_state(rollout_state, rollout_move)
-
-            total_score += outcome(board.owned_boxes(rollout_state), board.points_values(rollout_state))
-
-        expectation = float(total_score) / rollouts
-
-        # If the current move has a better average score, replace best_move and best_expectation
-        if expectation > best_expectation:
-            best_expectation = expectation
-            best_move = move
-
-    return best_move, best_expectation
-
-
 def rollout(board, state):
     """ Given the state of the game, the rollout plays out the remainder randomly.
 
@@ -144,19 +94,11 @@ def rollout(board, state):
 
     """
 
-    best_choice = None
-    best_expectation = None
-
     while not board.is_ended(state):
-        best_choice, best_expectation = rollout_helper(board, state)
-        state = board.next_state(state, best_choice)
-
-    '''while not board.is_ended(state):
         rdm_choice = choice(board.legal_actions(state))  # make a random legal choice
-        state = board.next_state(state, rdm_choice)  # update state'''
+        state = board.next_state(state, rdm_choice)  # update state
 
-    # print("MCTS modified bot picking %s with expected score %f" % (str(best_choice), best_expectation))
-    return state
+    return state  # state should be at the end of the game. Either win or loss
 
 
 def backpropagate(node, won):
@@ -218,5 +160,5 @@ def think(board, state):
             best_winrate = winrate
             rdm_node = child
 
-    print("mcts_modified picking %s" % (str(rdm_node.parent_action)))
+    print("mcts_vanilla picking %s" % (str(rdm_node.parent_action)))
     return rdm_node.parent_action
