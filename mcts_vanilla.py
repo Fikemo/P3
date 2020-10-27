@@ -160,5 +160,5 @@ def think(board, state):
             best_winrate = winrate
             rdm_node = child
 
-    print("mcts_vanilla picking %s" % (str(rdm_node.parent_action)))
+    # print("mcts_vanilla picking %s" % (str(rdm_node.parent_action)))
     return rdm_node.parent_action
