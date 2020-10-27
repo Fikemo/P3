@@ -1,0 +1,46 @@
+Experiment 2
+
+PLAYER 1 = mcts_vanilla, PLAYER 2 = mcts_modified
+
+--------------------------------------------
+
+# of Nodes: 600
+# of Games: 10
+
+Wins:
+mcts_vanilla - 4
+mcts_modified - 6
+
+--------------------------------------------
+
+# of Nodes: 400
+# of Games: 10
+
+Wins:
+mcts_vanilla - 3
+mcts_modified - 7
+
+--------------------------------------------
+
+# of Nodes: 200
+# of Games: 10
+
+Wins:
+mcts_vanilla - 5
+mcts_modified - 5
+
+--------------------------------------------
+
+# of Nodes: 100
+# of Games: 10
+
+Wins:
+mcts_vanilla - 3
+mcts_modified - 7
+
+--------------------------------------------
+
+Analysis:
+The modified version does almost consistently win more games when playing against the vanilla version.
+Although some times the vanilla version gets a bit lucky causing win counts to be close, or even the same as was the case with the 200 node test.
+It seems that the advantages and disadvantages each bot has remains the same as long as their node counts are equal

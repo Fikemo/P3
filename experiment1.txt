@@ -1,3 +1,5 @@
+Experiment 1
+
 PLAYER 1 = mcts_vanilla, PLAYER 2 = mcts_vanilla2
 
 --------------------------------------------

@@ -1,0 +1,29 @@
+Experiment 3
+
+PLAYER 1 = mcts_vanilla, PLAYER 2 = mcts_modified
+
+--------------------------------------------
+
+Time Constraint: 1 second per turn
+
+Wins:
+mcts_vanilla: 9
+mcts_modified: 1
+
+--------------------------------------------
+
+Time Constraint: 10 seconds per turn
+
+Wins:
+mcts_vanilla: 10
+mcts_modified: 0
+
+--------------------------------------------
+
+Analysis:
+Given a time constraint per turn rather than a node count constraint, the mcts_vanilla is able
+to beat mcts_modified because it can assemble a tree much faster. Since they are given the same amount
+of time to asseble a tree the one created by mcts_vanilla is much larger which often means that it can
+make better decisions. The reason mcts_modified is so much slower is because it's rollout method runs multiple
+simulations per turn to guess the best outcome in a selection of random turns. mcts_vanilla however,
+simply makes random turns in rollout.

@@ -1,8 +1,9 @@
 from mcts_node import MCTSNode
 from random import choice
 from math import sqrt, log
+from timeit import default_timer as time
 
-num_nodes = 500
+num_nodes = 600
 explore_faction = 2.
 
 
@@ -188,7 +189,7 @@ def think(board, state):
     """
     identity_of_bot = board.current_player(state)
     root_node = MCTSNode(parent=None, parent_action=None, action_list=board.legal_actions(state))
-
+    start = time()
     for step in range(num_nodes):
         # Copy the game for sampling a playthrough
         sampled_game = state
