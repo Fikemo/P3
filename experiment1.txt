@@ -1,0 +1,40 @@
+PLAYER 1 = mcts_vanilla, PLAYER 2 = mcts_vanilla2
+
+--------------------------------------------
+
+PLAYER 2 at 50 nodes
+Final win counts: {'draw': 0, 1: 75, 2: 25}
+150.02486689999998  seconds
+
+In this case, a fifty node tree loses against a 100 node tree.
+
+--------------------------------------------
+
+PLAYER 2 at 100 nodes
+Final win counts: {'draw': 4, 1: 55, 2: 41}
+195.8535733  seconds
+
+This is a 100 node tree against a 100 node tree. Results should be
+50/50. This is a result of luck
+
+--------------------------------------------
+
+PLAYER 2 at 200 nodes
+Final win counts: {'draw': 2, 1: 37, 2: 61}
+286.83255560000003  seconds
+
+This is a 100 node tree against a 200 node tree. Results
+are in correlation to size of tree
+
+--------------------------------------------
+
+PLAYER 2 at 500 nodes
+Final win counts: {'draw': 0, 1: 27, 2: 73}
+568.4297359000001  seconds
+
+100 node tree against 500. It is very appearent that the 
+bigger the tree mcts, the better the results will be;
+however, the run is increased as a result of increasing
+nodes.
+
+--------------------------------------------

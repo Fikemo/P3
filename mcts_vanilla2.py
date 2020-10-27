@@ -2,7 +2,7 @@ from mcts_node import MCTSNode
 from random import choice
 from math import sqrt, log
 
-num_nodes = 50
+num_nodes = 500
 explore_faction = 2.
 
 
